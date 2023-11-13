@@ -7,7 +7,8 @@ public:
   void toggle();
   virtual void turnOn() = 0;
   virtual void turnOff() = 0;
-  virtual void setOn(bool isOn) = 0;
+  virtual void setBrightness(float brightness);
+  void setOn(bool isOn);
   bool isOn();
 protected:
   bool mIsOn = false;
@@ -24,6 +25,10 @@ inline bool LED::isOn() {
   return mIsOn;
 }
 
+inline void LED::setOn(bool isOn) {
+  isOn ? turnOn() : turnOff();
+}
+
 class DigitalLED : DigitalPin, public LED {
 public:
   DigitalLED(int pinId) : DigitalPin(pinId, DigitalPin::Mode::Output) {}
@@ -31,19 +36,20 @@ public:
 
   void turnOn() override;
   void turnOff() override;
-  void setOn(bool isOn) override;
+  void setBrightness(float bightness) override;
 };
 
 inline void DigitalLED::turnOn() {
-  digitalWrite(getId(), HIGH);
+  write(HIGH);
+  mIsOn = true;
 }
 
 inline void DigitalLED::turnOff() {
-  digitalWrite(getId(), LOW);
+  write(LOW);
+  mIsOn = false;
 }
 
-inline void DigitalLED::setOn(bool isOn) {
-  digitalWrite(getId(), isOn ? HIGH : LOW);
+inline void DigitalLED::setBrightness(float brightness) {
 }
 
 class AnalogLED : AnalogPin, public LED {
@@ -53,17 +59,20 @@ public:
 
   void turnOn() override;
   void turnOff() override;
-  void setOn(bool isOn) override;
+  void setBrightness(float brightness) override;
 };
 
 inline void AnalogLED::turnOn() {
-  analogWrite(getId(), HIGH);
+  mIsOn = true;
+	write(HIGH);
 }
 
 inline void AnalogLED::turnOff() {
-  analogWrite(getId(), LOW);
+  mIsOn = false;
+  write(LOW);
 }
 
-inline void AnalogLED::setOn(bool isOn) {
-  analogWrite(getId(), isOn ? HIGH : LOW);
+inline void AnalogLED::setBrightness(float brightness) {
+  write(brightness * 255);
+  mIsOn = brightness != 0;
 }
